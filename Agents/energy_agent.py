@@ -50,9 +50,9 @@ class EnergyAgent(BaseAgent):
         Returns:
             str: An energy analysis plan or questions about missing information.
         """
-        if not self.collected_data:
-            return """No data provided.
-            Please provide energy consumption and facility information."""
+        # if not self.collected_data:
+        #     return """No data provided.
+        #     Please provide energy consumption and facility information."""
 
         # Construct a prompt for the LLM
         prompt = self._construct_prompt()
@@ -77,6 +77,8 @@ class EnergyAgent(BaseAgent):
         1. If ANY required information is missing:
         - List ONLY the specific missing items as questions
         - Format: "- What is the [missing item]?"
+        - When referring to missing items, automatically convert variable-like names 
+        (e.g., 'energy_requirements') to natural language (e.g., 'energy requirements').
         - Do not include any other text or explanations
 
         2. If ALL required information is available:
