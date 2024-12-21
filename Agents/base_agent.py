@@ -39,6 +39,9 @@ class BaseAgent:
             return ChatBedrock(
                 model_id=self.settings.CLAUDE_API_KEY,
                 model_kwargs=dict(temperature=0),
+                aws_access_key_id=self.settings.ACCESS_KEY_ID,
+                aws_secret_access_key=self.settings.SECRET_ACCESS_KEY,
+                region_name="eu-west-3",
             )
         except Exception as e:
             if self.settings.is_production:
