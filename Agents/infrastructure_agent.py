@@ -73,14 +73,17 @@ class InfrastructureAgent(BaseAgent):
             return "An error occurred while processing your request."
 
     def _construct_prompt(self) -> str:
-        """Construct the prompt for the LLM with neighborhood visualization capabilities.
+        """Construct the prompt for the LLM with
+          neighborhood visualization capabilities.
         
         Returns:
             str: The constructed prompt
         """
-        return f"""Role: You are an expert urban planner specializing in smart neighborhood design and sustainable community development.
+        return f"""Role: You are an expert urban planner specializing
+          in smart neighborhood design and sustainable community development.
 
-    Context: You are tasked with creating a detailed intelligent neighborhood plan that includes both a visual layout and comprehensive infrastructure assessment.
+    Context: You are tasked with creating a detailed intelligent neighborhood
+      plan that includes both a visual layout and comprehensive infrastructure assessment.
 
     Task: Analyze the provided data and respond in ONE of these two formats:
 

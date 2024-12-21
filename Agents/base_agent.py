@@ -3,7 +3,8 @@
 from typing import Optional
 from langchain_anthropic import ChatAnthropic
 from langchain_aws import ChatBedrock
-from langchain_openai import ChatOpenAI
+from langchain_openai import ChatOpenAI # doenst support o1 yet
+import openai
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -26,7 +27,7 @@ class BaseAgent:
         self.claude = self._initialize_claude()
 
         # Initialize GPT-4
-        self.gpt4 = self._initialize_gpt4()
+        self.dallEclient = self._initialize_gpt4()
 
     def _initialize_claude(self) -> Optional[ChatAnthropic]:
         """Initialize Claude model with proper error handling
@@ -42,6 +43,7 @@ class BaseAgent:
                 aws_access_key_id=self.settings.ACCESS_KEY_ID,
                 aws_secret_access_key=self.settings.SECRET_ACCESS_KEY,
                 region_name="eu-west-3",
+                max_tokens=5012
             )
         except Exception as e:
             if self.settings.is_production:
@@ -57,13 +59,8 @@ class BaseAgent:
             None: If initialization fails
         """
         try:
-            return ChatOpenAI(
-                api_key=self.settings.OPENAI_API_KEY,
-                model=self.settings.GPT4_MODEL,
-                temperature=0.5,
-                max_retries=3,
-                request_timeout=300,  # 5 minutes timeout
-            )
+            return openai.OpenAI(api_key=self.settings.OPENAI_API_KEY)
+        
         except Exception as e:
             if self.settings.is_production:
                 raise Exception("Failed to initialize GPT-4 model") from e

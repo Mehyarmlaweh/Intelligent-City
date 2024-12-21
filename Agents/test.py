@@ -4,8 +4,10 @@ import sys
 from business_agent import BusinessAgent
 from energy_agent import EnergyAgent
 from infrastructure_agent import InfrastructureAgent
+from vision_agent import VisionAgent
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from config import get_settings
+import base64
 
 
 def main():
@@ -17,6 +19,8 @@ def main():
     agent1 = InfrastructureAgent(settings)
 
     agent2 = EnergyAgent(settings)
+
+    agent3 = VisionAgent(settings)
 
     # Example data
     test_data = {
@@ -61,18 +65,21 @@ def main():
 """
         }
     }
-
     # Test the agent
+
+    globalOutput = {}
+
     agent.collect_data(test_data)
     agent1.collect_data(test_data)
 
     agent2.collect_data(test_data)
 
-    print("Infra",agent1.ask_llm())
-    print("BUSINESS", agent.ask_llm())
+    globalOutput["Infrastructure"] = agent1.ask_llm()
+    globalOutput["Business"] = agent.ask_llm()
 
-    print("Engergue", agent2.ask_llm())
-
+    globalOutput["Energy"] = agent2.ask_llm()
+    agent3.collect_data(globalOutput)
+    print(agent3.ask_llm())
 
 
 if __name__ == "__main__":
