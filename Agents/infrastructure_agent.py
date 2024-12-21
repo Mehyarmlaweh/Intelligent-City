@@ -73,63 +73,84 @@ class InfrastructureAgent(BaseAgent):
             return "An error occurred while processing your request."
 
     def _construct_prompt(self) -> str:
-        """Construct the prompt for the LLM.
-
+        """Construct the prompt for the LLM with neighborhood visualization capabilities.
+        
         Returns:
             str: The constructed prompt
         """
-        return f"""Role: You are an expert urban planner specializing in
-                    smart neighborhood design and sustainable community
-                      development.
+        return f"""Role: You are an expert urban planner specializing in smart neighborhood design and sustainable community development.
 
-                    Context: You are tasked with planning an intelligent
-                      neighborhood that optimizes quality of life through
-                        strategic infrastructure placement, smart technology
-                        integration, and sustainable design principles.
+    Context: You are tasked with creating a detailed intelligent neighborhood plan that includes both a visual layout and comprehensive infrastructure assessment.
 
-                    Task: Analyze the provided data against required
-                    information and respond in ONE of two ways:
+    Task: Analyze the provided data and respond in ONE of these two formats:
 
-                    1. If ANY required information is missing POST QUESTIONS:
-                    - List ONLY the specific missing items as questions
-                    - Format: "- What are the [missing item] planned
-                      for this neighborhood?"
-                    - Consider both physical infrastructure and smart
-                    technology requirements
-                    - Do not include any other text or explanations
+    1. If ANY required information is missing:
+    - List ONLY the specific missing items as questions
+    - Format: "- What are the [missing item] planned for this neighborhood?"
+    - Consider both physical infrastructure and smart technology requirements
+    - Do not include any other text or explanations
 
-                    2. If ALL required information is available:
-                    Start directly with "Infrastructure Assessment Summary:"
-                      and provide:                    
-                    a) Smart Infrastructure Layout:
-                        - Strategic positioning of buildings and facilities
-                        - Integration of smart systems and IoT infrastructure
-                        - Transportation network optimization
-                        - Green spaces and community areas distribution               
-                    b) Quality of Life Considerations:
-                        - Walking distances to essential services
-                        - Noise and pollution reduction measures
-                        - Community interaction spaces
-                        - Safety and security features           
-                    c) Sustainability Features:
-                        - Energy efficiency solutions
-                        - Waste management systems
-                        - Water conservation methods
-                        - Environmental impact reduction         
-                    d) Smart Technology Integration:
-                        - IoT sensor networks
-                        - Smart grid implementation
-                        - Digital services infrastructure
-                        - Data collection and analysis systems               
-                    e) Specific Recommendations:
-                        - Infrastructure optimization opportunities
-                        - Technology enhancement suggestions
-                        - Community engagement improvements
-                        - Future expansion possibilities
+    2. If ALL required information is available, provide a TWO-PART response:
 
-                    Required information: {self.required_info}
-                    Provided data: {self.collected_data}
+    PART 1 - NEIGHBORHOOD LAYOUT:
+    Title: "Smart Neighborhood Visual Layout"
 
-                    Note: Focus on creating a comprehensive plan that
-                    balances technology integration with human-centric design
-                    principles."""
+    a) Legend:
+    List all components with symbols (R: Residential, C: Commercial, etc.)
+
+    b) Grid Specifications:
+    - Total dimensions
+    - Zone sizes
+    - Street widths
+    - Building footprints
+
+    c) ASCII Layout Plan:
+    Create a visual grid using ASCII characters showing:
+    - Building placements
+    - Street layouts
+    - Green spaces
+    - Community facilities
+    Format:
+    +------------------------+
+    |  R  |  G  |  R  |  C  |
+    |  S  |  S  |  S  |  S  |
+    |  R  |  T  |  R  |  G  |
+    +------------------------+
+    (You can choose the most efficient area to represent the layout of the nerighborhood)
+    PART 2 - INFRASTRUCTURE ASSESSMENT:
+    Title: "Infrastructure Assessment Summary:"
+
+    a) Smart Infrastructure Layout:
+    - Strategic positioning of buildings and facilities
+    - Integration of smart systems and IoT infrastructure
+    - Transportation network optimization
+    - Green spaces and community areas distribution
+
+    b) Quality of Life Considerations:
+    - Walking distances to essential services
+    - Noise and pollution reduction measures
+    - Community interaction spaces
+    - Safety and security features
+
+    c) Sustainability Features:
+    - Energy efficiency solutions
+    - Waste management systems
+    - Water conservation methods
+    - Environmental impact reduction
+
+    d) Smart Technology Integration:
+    - IoT sensor networks
+    - Smart grid implementation
+    - Digital services infrastructure
+    - Data collection and analysis systems
+
+    e) Specific Recommendations:
+    - Infrastructure optimization opportunities
+    - Technology enhancement suggestions
+    - Community engagement improvements
+    - Future expansion possibilities
+
+    Required information: {self.required_info}
+    Provided data: {self.collected_data}
+
+    Note: Ensure the layout and assessment work together to create an optimized living environment that balances technology integration with human-centric design principles."""
