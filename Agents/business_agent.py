@@ -50,15 +50,14 @@ class BusinessAgent(BaseAgent):
         """Ask the LLM for information.
 
         Args:
-            llm (object, optional): The LLM instance to handle text processing.
-                                  Not used as we're using Claude directly.
+                            
 
         Returns:
             str: A business plan or questions about missing information.
         """
-        if not self.collected_data:
-            return """No data provided.
-            Please provide business-related information."""
+        # if not self.collected_data:
+        #    return """No data provided.
+        #    Please provide business-related information."""
 
         # Construct a prompt for the LLM
         prompt = self._construct_prompt()
@@ -77,7 +76,7 @@ class BusinessAgent(BaseAgent):
         Returns:
             str: The constructed prompt
         """
-        return f"""Role: You are a business planning expert.       
+        return f"""Role: You are a business planning expert.     
         Task: Compare the provided data against required information and
         respond in ONE of two ways:
         1. If ANY required information is missing:
