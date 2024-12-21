@@ -1,0 +1,99 @@
+"Unit test Infra Agent"
+import unittest
+from unittest.mock import MagicMock, patch
+from infrastructure_agent import InfrastructureAgent
+
+class TestInfrastructureAgent(unittest.TestCase):
+
+    def setUp(self):
+        # Mock the config
+        self.mock_config = MagicMock()
+        self.mock_config.ANTHROPIC_API_KEY = "mock_anthropic_key"
+        self.mock_config.OPENAI_API_KEY = "mock_openai_key"
+        self.mock_config.GPT4_MODEL = "gpt-4"
+        
+        # Create an instance of InfrastructureAgent
+        self.agent = InfrastructureAgent(self.mock_config)
+
+    def test_process_information_complete(self):
+        complete_data = {
+            "building_types": "Residential and commercial",
+            "transportation": "Bus and bike lanes",
+            "public_spaces": "Parks and plazas",
+            "educational_facilities": "Schools and libraries",
+            "healthcare_facilities": "Hospitals and clinics",
+            "green_spaces": "Urban forests and community gardens"
+        }
+        result = self.agent.process_information(complete_data)
+        self.assertIsNone(result)
+
+    def test_process_information_incomplete(self):
+        incomplete_data = {
+            "building_types": "Residential",
+            "transportation": "Bus lanes"
+        }
+        with patch.object(self.agent, 'generate_questions') as mock_generate:
+            mock_generate.return_value = ["Question 1", "Question 2"]
+            result = self.agent.process_information(incomplete_data)
+        self.assertEqual(result, ["Question 1", "Question 2"])
+
+    def test_check_missing_info(self):
+        self.agent.collected_data = {
+            "building_types": "Residential",
+            "transportation": "Bus lanes"
+        }
+        missing = self.agent.check_missing_info()
+        self.assertEqual(set(missing), {"public_spaces", "educational_facilities", "healthcare_facilities", "green_spaces"})
+
+    @patch('infrastructure_agent.LLMChain')
+    def test_generate_questions(self, mock_llm_chain):
+        mock_chain = MagicMock()
+        mock_chain.run.return_value = "Question 1\nQuestion 2\nQuestion 3"
+        mock_llm_chain.return_value = mock_chain
+
+        questions = self.agent.generate_questions(["public_spaces", "green_spaces"])
+        self.assertEqual(questions, ["Question 1", "Question 2", "Question 3"])
+
+    @patch('infrastructure_agent.LLMChain')
+    def test_analyze_infrastructure_needs(self, mock_llm_chain):
+        mock_chain = MagicMock()
+        mock_chain.run.return_value = "Detailed analysis and recommendations..."
+        mock_llm_chain.return_value = mock_chain
+
+        self.agent.collected_data = {info: "Sample data" for info in self.agent.required_info}
+        analysis = self.agent.analyze_infrastructure_needs()
+        self.assertEqual(analysis, "Detailed analysis and recommendations...")
+
+    def test_create_summary_insufficient_info(self):
+        self.agent.collected_data = {"building_types": "Residential"}
+        summary = self.agent.create_summary()
+        self.assertEqual(summary, "Insufficient information to create a summary. Please provide all required information.")
+
+    @patch.object(InfrastructureAgent, 'analyze_infrastructure_needs')
+    def test_create_summary_sufficient_info(self, mock_analyze):
+        mock_analyze.return_value = "Detailed analysis and recommendations..."
+        self.agent.collected_data = {info: "Sample data" for info in self.agent.required_info}
+        summary = self.agent.create_summary()
+        self.assertEqual(summary, "Detailed analysis and recommendations...")
+
+    def test_communicate_with_master_agent_need_more_info(self):
+        incomplete_data = {"building_types": "Residential"}
+        with patch.object(self.agent, 'process_information') as mock_process:
+            mock_process.return_value = ["Question 1", "Question 2"]
+            result = self.agent.communicate_with_master_agent(incomplete_data)
+        self.assertEqual(result, {"status": "need_more_info", "questions": ["Question 1", "Question 2"]})
+
+    def test_communicate_with_master_agent_ready(self):
+        complete_data = {info: "Sample data" for info in self.agent.required_info}
+        with patch.object(self.agent, 'create_summary') as mock_summary:
+            mock_summary.return_value = "Detailed summary..."
+            result = self.agent.communicate_with_master_agent(complete_data)
+        self.assertEqual(result, {"status": "ready", "summary": "Detailed summary..."})
+
+    def test_communicate_with_master_agent_invalid_input(self):
+        invalid_input = "Not a dictionary"
+        result = self.agent.communicate_with_master_agent(invalid_input)
+        self.assertEqual(result, {"status": "error", "message": "Invalid input format from master agent"})
+
+if __name__ == '__main__':
+    unittest.main()
