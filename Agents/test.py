@@ -1,6 +1,7 @@
 # pylint: disable=import-error
 import os
 import sys
+import asyncio
 from business_agent import BusinessAgent
 from energy_agent import EnergyAgent
 from infrastructure_agent import InfrastructureAgent
@@ -9,26 +10,17 @@ from coordinator_agent import CoordinatorAgent
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from config import get_settings
-import base64
 
-
-def main():
+async def main():
     # Get settings instance
     settings = get_settings()
 
-    # Initialize the agent with settings
-    businessAgent = BusinessAgent(settings)
-    infrastructureAgent = InfrastructureAgent(settings)
-    energyAgent = EnergyAgent(settings)
+    # Initialize the coordinator agent
+    coordinator = CoordinatorAgent(settings)
 
-    coordinatorAgent = CoordinatorAgent(settings)
-
-    visionAgent = VisionAgent(settings)
-
-    # Example data
+    # Example data (your existing test_data)
     test_data = """
 Business
-- Budget: $100,000
 - Expected ROI: 25% within 2 years
 - Target Demographics: Young professionals, age 25-35
 - Commercial Zones: Downtown, Shopping Mall
@@ -62,24 +54,38 @@ Healthcare services are a priority, with plans for a hospital, clinic, and pharm
 This data will help inform the planning and analysis of the infrastructure to ensure it meets the needs of the community while integrating smart technologies and sustainable solutions.
 """
 
-    # Test the agent
+    # Visualize the workflow (optional)
+    #coordinator.visualize_workflow("workflow_visualization")
+    
+    # Run the workflow
+    try:
+        # Process with preview generation
+        result = await coordinator.process_input(test_data, generate_preview=True)
+        
+        # Print results
+        if "questions" in result:
+            print("\nFollow-up Questions Required:")
+            for question in result["questions"]:
+                print(f"- {question}")
+        
+        if "report" in result:
+            print("\nFinal Report:")
+            print(result["report"])
+            
+        if "preview" in result:
+            print("\nPreview Generated:")
+            print(result["preview"])
+            
+        if "error" in result:
+            print("\nError occurred:")
+            print(result["error"])
+            
+    except Exception as e:
+        print(f"Error during workflow execution: {str(e)}")
 
-    globalOutput = {}
-
-    structured_input = coordinatorAgent.process_input(test_data)
-
-    businessAgent.collect_data(structured_input)
-    infrastructureAgent.collect_data(structured_input)
-    energyAgent.collect_data(structured_input)
-    coordinatorAgent.distribute_data(structured_input)
-
-    globalOutput["Infrastructure"] = infrastructureAgent.ask_llm()
-    globalOutput["Business"] = businessAgent.ask_llm()
-
-    globalOutput["Energy"] = energyAgent.ask_llm()
-    visionAgent.collect_data(globalOutput)
-    print(visionAgent.ask_llm())
-
+def run_async_main():
+    """Helper function to run async main in sync context"""
+    asyncio.run(main())
 
 if __name__ == "__main__":
-    main()
+    run_async_main()
