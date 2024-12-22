@@ -24,7 +24,7 @@ class VisionAgent(BaseAgent):
         self.collected_data = None
         self.environment = settings.ENVIRONMENT
 
-    def collect_data(self, data: dict):
+    def collect_data(self, data: str):
         """Collect data from the input dictionary.
 
         Args:
@@ -34,8 +34,8 @@ class VisionAgent(BaseAgent):
         Raises:
             ValueError: If the input is not a dictionary.
         """
-        if not isinstance(data, dict):
-            raise ValueError("Input must be a dictionary")
+        if not isinstance(data, str):
+            raise ValueError("Input must be a STRING")
 
         if data:
             self.collected_data = data
