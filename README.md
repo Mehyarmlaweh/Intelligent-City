@@ -28,9 +28,20 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 
 * A working `Python 3.11.10` installation with the following libraries installed:  
+	- python-dotenv
+	- asyncio
+	- requests 
+	- typing
+	- pydantic
 	- openai
+	- langchain-anthropic
+	- langchain-aws
+	- langchain-openai
+	- langchain-core
 	- langgraph
-	- ... fo fill with reqs
+	- uvicorn
+	- fastapi
+	- streamlit
 
 	You can install all these libraries by doing `pip install -r requirements.txt` while in the root directory of the project.  
   
