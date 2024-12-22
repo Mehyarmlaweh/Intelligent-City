@@ -1,8 +1,8 @@
 # pylint: disable=import-error
 "business agent"
+from base_agent import BaseAgent
 import os
 import sys
-from base_agent import BaseAgent
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from config import Settings
 

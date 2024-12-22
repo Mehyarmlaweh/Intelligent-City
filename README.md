@@ -72,7 +72,7 @@ These instructions will get you a copy of the project up and running on your loc
 * **Malek Makhlouf** - *Technical Work / Coding* - [malekhlouf](https://github.com/malekhlouf)
 * **Mehyar Mlaweh** - *Technical Work / Coding* - [Mehyarmlaweh](https://github.com/Mehyarmlaweh)
 * **Nadia Ben Youssef** - *Business Analysis / Pitch Deck* - [nadyby](https://github.com/nadyby)
-* **Yassine Ben Abdallah** - *Technical Work / Coding* - [yassineba13](https://github.com/yassineba13)
+* **Yassine Ben Abdallah** - *Business Analysis / Pitch Deck* - [yassineba13](https://github.com/yassineba13)
 
 ## License
 

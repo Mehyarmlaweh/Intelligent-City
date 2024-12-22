@@ -78,8 +78,5 @@ This data will help inform the planning and analysis of the infrastructure to en
     print("\n" * 10)
     print(images)
 
-    
-
-
 if __name__ == "__main__":
     main()
