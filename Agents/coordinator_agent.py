@@ -81,28 +81,32 @@ class CoordinatorAgent(BaseAgent):
                 state["infrastructure_data"] = {}
             return state
 
-        def check_data_completion(state: AgentState) -> str:
-            # Return the next node name based on completion status
-            if all(bool(state.get(key)) for key in ["business_data", "energy_data", "infrastructure_data"]):
-                return "complete"
-            return "incomplete"
+        def process_vision(state: AgentState) -> AgentState:
+            try:
+                response = self.vision_agent.ask_llm()
+                state.update(response)  # Add VisionAgent outputs directly to the state
+            except Exception as e:
+                if self.settings.ENVIRONMENT == "local":
+                    print(f"Error in vision processing: {str(e)}")
+            return state
 
         def generate_final_report(state: AgentState) -> AgentState:
             try:
                 prompt = f"""
-                Create a comprehensive neighborhood development report 
-                using the following data,
-                if any of them contains question put the question as a
-                  separate section for the user.
-                Limit your output dont generate a very long output
+                Create a comprehensive neighborhood development report using the following data:
                 Business Analysis: {state['business_data']}
                 Energy Assessment: {state['energy_data']}
                 Infrastructure Plan: {state['infrastructure_data']}
-                
+
                 Format the report with clear sections and recommendations.
                 """
                 response = self.claude.invoke(prompt)
-                state["final_report"] = response.content
+                state["final_report"] = response.content + f"""Vision Outputs:
+                    - DALL-E Image: {state.get("image1_DallE",
+                                                "Not Available")}
+                    - Claude Image: {state.get("image2_Claude",
+                                               "Not Available")}"""
+                
             except Exception as e:
                 if self.settings.ENVIRONMENT == "local":
                     print(f"Error generating report: {str(e)}")
@@ -113,12 +117,14 @@ class CoordinatorAgent(BaseAgent):
         workflow.add_node("business", process_business)
         workflow.add_node("energy", process_energy)
         workflow.add_node("infrastructure", process_infrastructure)
+        workflow.add_node("vision", process_vision)
         workflow.add_node("generate_report", generate_final_report)
 
         # Define the edges
         workflow.add_edge("business", "energy")
         workflow.add_edge("energy", "infrastructure")
-        workflow.add_edge("infrastructure", "generate_report")
+        workflow.add_edge("infrastructure", "vision")
+        workflow.add_edge("vision", "generate_report")
 
         # Set the entry point
         workflow.set_entry_point("business")
@@ -168,10 +174,11 @@ class CoordinatorAgent(BaseAgent):
         """Structure the user input into categorized data."""
         try:
             prompt = f"""
-            Analyze the following input and organize it into three categories: business, energy, and infrastructure.
+            Analyze the following input and organize it into three categories:
+              business, energy, and infrastructure.
             Return the result as a JSON object with these three keys.
-            If a category has no relevant data, use an empty object {{}} for that key.
-            
+            If a category has no relevant data, use an empty object {{}} 
+            for that key.
             Input: {user_input}
             """
 
