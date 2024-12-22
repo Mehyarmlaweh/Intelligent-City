@@ -1,0 +1,22 @@
+
+streamlit
+
+python-dotenv
+functools
+os
+typing
+langchain-anthropic
+langchain-aws
+langchain-openai
+openai
+sys
+config
+langchain-core
+langgraph
+asyncio
+
+# API
+fastapi
+uvicorn
+pydantic
+requests 
