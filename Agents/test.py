@@ -60,7 +60,7 @@ This data will help inform the planning and analysis of the infrastructure to en
     # Run the workflow
     try:
         # Process with preview generation
-        result = await coordinator.process_input(test_data, generate_preview=True)
+        result = await coordinator.process_input(test_data)
         
         # Print results
         if "questions" in result:

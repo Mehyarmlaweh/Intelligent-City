@@ -21,7 +21,6 @@ class AgentState(TypedDict):
     energy_data: Dict
     infrastructure_data: Dict
     all_data_collected: bool
-    generate_preview: bool
     final_report: str
 
 class CoordinatorAgent(BaseAgent):
@@ -81,15 +80,6 @@ class CoordinatorAgent(BaseAgent):
                 state["infrastructure_data"] = {}
             return state
 
-        def process_vision(state: AgentState) -> AgentState:
-            try:
-                response = self.vision_agent.ask_llm()
-                state.update(response)  # Add VisionAgent outputs directly to the state
-            except Exception as e:
-                if self.settings.ENVIRONMENT == "local":
-                    print(f"Error in vision processing: {str(e)}")
-            return state
-
         def generate_final_report(state: AgentState) -> AgentState:
             try:
                 prompt = f"""
@@ -101,11 +91,8 @@ class CoordinatorAgent(BaseAgent):
                 Format the report with clear sections and recommendations.
                 """
                 response = self.claude.invoke(prompt)
-                state["final_report"] = response.content + f"""Vision Outputs:
-                    - DALL-E Image: {state.get("image1_DallE",
-                                                "Not Available")}
-                    - Claude Image: {state.get("image2_Claude",
-                                               "Not Available")}"""
+
+                state["final_report"] = response.content 
                 
             except Exception as e:
                 if self.settings.ENVIRONMENT == "local":
@@ -113,25 +100,36 @@ class CoordinatorAgent(BaseAgent):
                 state["final_report"] = "Error generating report"
             return state
 
+        def process_vision(state: AgentState) -> AgentState:
+            try:  
+                self.vision_agent.collect_data(state["final_report"])
+                response = self.vision_agent.ask_llm()
+                state["vision"] = response
+            except Exception as e:
+                if self.settings.ENVIRONMENT == "local":
+                    print(f"Error in vision processing: {str(e)}")
+                state["vision"] = {}
+            return state
+
         # Add nodes to the graph
         workflow.add_node("business", process_business)
         workflow.add_node("energy", process_energy)
         workflow.add_node("infrastructure", process_infrastructure)
-        workflow.add_node("vision", process_vision)
         workflow.add_node("generate_report", generate_final_report)
+        workflow.add_node("vision", process_vision)
 
-        # Define the edges
+        # Add edges
         workflow.add_edge("business", "energy")
         workflow.add_edge("energy", "infrastructure")
-        workflow.add_edge("infrastructure", "vision")
-        workflow.add_edge("vision", "generate_report")
+        workflow.add_edge("infrastructure", "generate_report")
+        workflow.add_edge("generate_report", "vision")
 
         # Set the entry point
         workflow.set_entry_point("business")
 
         return workflow.compile()
 
-    async def process_input(self, user_input: str, generate_preview: bool = False) -> dict:
+    async def process_input(self, user_input: str) -> dict:
         """Process user input through the agent workflow."""
         try:
             # Initial state setup
@@ -141,8 +139,8 @@ class CoordinatorAgent(BaseAgent):
                 energy_data={},
                 infrastructure_data={},
                 all_data_collected=False,
-                generate_preview=generate_preview,
                 final_report="",
+                vision={},
             )
 
             # Structure the input data
@@ -158,12 +156,13 @@ class CoordinatorAgent(BaseAgent):
 
             return {
                 "report": final_state["final_report"],
+                "images": final_state["vision"],
                 "questions": [
                     msg.content
                     for msg in final_state["messages"]
                     if isinstance(msg, HumanMessage)
                 ]
-                    }
+            }
 
         except Exception as e:
             if self.settings.ENVIRONMENT == "local":
