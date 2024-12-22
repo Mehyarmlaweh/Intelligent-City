@@ -2,6 +2,7 @@
 "business agent"
 import os
 import sys
+import re
 from base_agent import BaseAgent
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -64,7 +65,15 @@ class VisionAgent(BaseAgent):
                 n=1,
             )
             output["image1_DallE"] = image2DallE.data[0].url
-            output["image2_Claude"] = image1Claude.content
+            svg_match = re.search(
+                r"<svg[^>]*>.*?</svg>", image1Claude.content, re.DOTALL
+            )
+            if svg_match:
+                svg_content = svg_match.group(0)
+            else:
+                svg_content = None
+                print("No SVG content found in the input text.")
+            output["image2_Claude"] = svg_content
             return output
         except Exception as e:
             if self.environment == "local":
@@ -117,7 +126,8 @@ class VisionAgent(BaseAgent):
     Create organic shapes using <path> elements with curved segments. Include shadow effects using subtle gradient fills. 
 
         Generate the image as a complete, professional architectural site plan that maintains the natural, 
-        hand-drawn quality of traditional architectural drawings."""
+        hand-drawn quality of traditional architectural drawings.
+        """
 
         prompts[
             "prompt2"
@@ -207,4 +217,4 @@ class VisionAgent(BaseAgent):
                 The output should be directly saveable as a .svg 
                 file and viewable in modern browsers and vector editors."""
 
-        return prompts  
+        return prompts
