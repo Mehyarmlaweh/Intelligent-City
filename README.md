@@ -62,7 +62,6 @@ These instructions will get you a copy of the project up and running on your loc
 * [Langgraph](https://www.langchain.com/langgraph)
 * [Streamlit](https://streamlit.io)
 * [FastAPI](https://fastapi.tiangolo.com)
-* [AWS Bedrock](https://aws.amazon.com/bedrock/)
 * [Docker](https://www.docker.com)
 * [GCP](https://cloud.google.com/?hl=en)
 
